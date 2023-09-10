@@ -67,7 +67,8 @@ const clickHandler = (event) => {
       renderJobDetails(jobItem);
     })
     .catch((error) => {
-      console.log("error");
+      renderSpinner("job-details");
+      renderError(error.message);
     });
 };
 jobListSearchEl.addEventListener("click", clickHandler);

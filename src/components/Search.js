@@ -22,6 +22,7 @@ const submitHandler = (event) => {
   const forbiddenPattern = /[0-9]/;
   const patternMatch = forbiddenPattern.test(searchText);
   if (patternMatch) {
+    renderSpinner("search");
     renderError("Your search cannot contain numbers!");
     return;
   }
@@ -38,8 +39,7 @@ const submitHandler = (event) => {
   fetch(`${BASE_API_URL}/jobs?search=${searchText}`)
     .then((response) => {
       if (!response.ok) {
-        console.log("Something went wrong!");
-        return;
+        throw new Error("Resoure issue or server issue");
       }
       return response.json();
     })
@@ -54,7 +54,8 @@ const submitHandler = (event) => {
       renderJobList(jobItems);
     })
     .catch((error) => {
-      console.log(error);
+      renderSpinner("search");
+      renderError(error.message);
     });
 };
 searchFormEl.addEventListener("submit", submitHandler);
