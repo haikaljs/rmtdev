@@ -33,7 +33,7 @@ const renderJobList = (jobItems) => {
   });
 };
 
-const clickHandler = (event) => {
+const clickHandler = async (event) => {
   event.preventDefault();
   // get clicked job item element
   const jobItemEl = event.target.closest(".job-item");
@@ -49,27 +49,43 @@ const clickHandler = (event) => {
   renderSpinner("job-details");
   // get the id
   const id = jobItemEl.children[0].getAttribute("href");
-  console.log(id);
+
   // fetch job item data
-  fetch(`${BASE_API_URL}/jobs/${id}`)
-    .then((response) => {
-      if (!response.ok) {
-        console.log("Something went wrong!");
-        return;
-      }
-      return response.json();
-    })
-    .then((data) => {
-      const { jobItem } = data;
-      // remove spinner
-      renderSpinner("job-details");
-      // render job details
-      renderJobDetails(jobItem);
-    })
-    .catch((error) => {
-      renderSpinner("job-details");
-      renderError(error.message);
-    });
+  try {
+    const response = await fetch(`${BASE_API_URL}/jobs/${id}`);
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.description);
+    }
+    const { jobItem } = data;
+    // remove spinner
+    renderSpinner("job-details");
+    // render job details
+    renderJobDetails(jobItem);
+  } catch (error) {
+    renderSpinner("job-details");
+    renderError(error.message);
+  }
+
+  // fetch(`${BASE_API_URL}/jobs/${id}`)
+  //   .then((response) => {
+  //     if (!response.ok) {
+  //       console.log("Something went wrong!");
+  //       return;
+  //     }
+  //     return response.json();
+  //   })
+  //   .then((data) => {
+  //     const { jobItem } = data;
+  //     // remove spinner
+  //     renderSpinner("job-details");
+  //     // render job details
+  //     renderJobDetails(jobItem);
+  //   })
+  //   .catch((error) => {
+  //     renderSpinner("job-details");
+  //     renderError(error.message);
+  //   });
 };
 jobListSearchEl.addEventListener("click", clickHandler);
 

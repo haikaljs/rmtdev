@@ -11,7 +11,7 @@ import renderSpinner from "./Spinner.js";
 import renderError from "./Error.js";
 import renderJobList from "./JobList.js";
 
-const submitHandler = (event) => {
+const submitHandler = async (event) => {
   //prevent default behaviour
   event.preventDefault();
 
@@ -36,26 +36,46 @@ const submitHandler = (event) => {
   renderSpinner("search");
 
   // fetch search results
-  fetch(`${BASE_API_URL}/jobs?search=${searchText}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Resoure issue or server issue");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      //   extract job items
-      const { jobItems } = data;
+  try {
+    const response = await fetch(`${BASE_API_URL}/jobs?search=${searchText}`);
+    const data = await response.json();
+    console.log(data);
+    if (!response.ok) {
+      throw new Error(data.description);
+    }
 
-      // remove spinner
-      renderSpinner("search");
-      //render number of results
-      numberEl.textContent = jobItems.length;
-      renderJobList(jobItems);
-    })
-    .catch((error) => {
-      renderSpinner("search");
-      renderError(error.message);
-    });
+    const { jobItems } = data;
+
+    // remove spinner
+    renderSpinner("search");
+    //render number of results
+    numberEl.textContent = jobItems.length;
+    renderJobList(jobItems);
+  } catch (error) {
+    renderSpinner("search");
+    renderError(error.message);
+  }
+
+  // fetch(`${BASE_API_URL}/jobs?search=${searchText}`)
+  //   .then((response) => {
+  //     if (!response.ok) {
+  //       throw new Error("Resoure issue or server issue");
+  //     }
+  //     return response.json();
+  //   })
+  //   .then((data) => {
+  //     //   extract job items
+  //     const { jobItems } = data;
+
+  //     // remove spinner
+  //     renderSpinner("search");
+  //     //render number of results
+  //     numberEl.textContent = jobItems.length;
+  //     renderJobList(jobItems);
+  //   })
+  //   .catch((error) => {
+  //     renderSpinner("search");
+  //     renderError(error.message);
+  //   });
 };
 searchFormEl.addEventListener("submit", submitHandler);
